@@ -654,22 +654,31 @@ function openWorkout(id) {
   document.getElementById('modal').classList.add('open');
 }
 
-function switchTab(tab) {
+ function switchTab(tab) {
+  console.log('Switching to tab:', tab);
+  
   // Update active tab button
   document.querySelectorAll('.modal-tab').forEach(el => el.classList.remove('active'));
   event.target.classList.add('active');
   
   // Update active content area
   document.querySelectorAll('.modal-content-area').forEach(el => el.classList.remove('active'));
-  document.getElementById(tab + '-tab').classList.add('active');
+  const tabElement = document.getElementById(tab + '-tab');
+  if (tabElement) {
+    tabElement.classList.add('active');
+    console.log('Activated tab element:', tab + '-tab');
+  } else {
+    console.error('Tab element not found:', tab + '-tab');
+  }
   
   // Load full workout content if switching to full tab
-  if (tab === 'full' && !document.getElementById('markdown-content').textContent) {
+  if (tab === 'full') {
+    console.log('Calling openFullWorkout');
     openFullWorkout();
   }
-}
+} 
 
-function openFullWorkout() {
+ function openFullWorkout() {
   if (!currentWorkout) return;
   
   const contentArea = document.getElementById('markdown-content');
