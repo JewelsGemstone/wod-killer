@@ -672,31 +672,29 @@ function switchTab(tab) {
 function openFullWorkout() {
   if (!currentWorkout) return;
   
-  const rawGitHubUrl = 'https://raw.githubusercontent.com/JewelsGemstone/wod-killer/main/' + encodeURIComponent(currentWorkout.source);
   const contentArea = document.getElementById('markdown-content');
+  contentArea.innerHTML = '<div class="markdown-loading">Testing... if you see this, the tab is working!</div>';
   
-  contentArea.innerHTML = '<div class="markdown-loading">Loading workout details...</div>';
+  const rawGitHubUrl = 'https://raw.githubusercontent.com/JewelsGemstone/wod-killer/main/' + encodeURIComponent(currentWorkout.source);
+  console.log('Fetching from:', rawGitHubUrl);
   
-  console.log('Fetching:', rawGitHubUrl);
-  
-  fetch(rawGitHubUrl)
+  fetch(rawGitHubUrl, {mode: 'cors'})
     .then(res => {
-      console.log('Response status:', res.status);
-      if (!res.ok) throw new Error('File not found (HTTP ' + res.status + ')');
+      console.log('Fetch response status:', res.status);
+      if (!res.ok) {
+        throw new Error('HTTP ' + res.status);
+      }
       return res.text();
     })
-    .then(markdown => {
-      console.log('Markdown loaded, length:', markdown.length);
-      if (!markdown || markdown.length === 0) {
-        throw new Error('File is empty');
-      }
-      // Render markdown to HTML using marked.js
-      const html = marked.parse(markdown);
-      contentArea.innerHTML = html;
+    .then(text => {
+      console.log('Got text, length:', text.length);
+      contentArea.innerHTML = '<pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 13px;">' + 
+        text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + 
+        '</pre>';
     })
     .catch(err => {
-      console.error('Error:', err);
-      contentArea.innerHTML = '<div class="markdown-error">❌ Could not load workout details.<br><small>' + err.message + '</small><br><br>Check that the file exists in your repo and GitHub Pages is enabled.</div>';
+      console.error('Fetch error:', err.message);
+      contentArea.innerHTML = '<div class="markdown-error">Error: ' + err.message + '</div>';
     });
 }
 
