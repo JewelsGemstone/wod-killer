@@ -627,13 +627,11 @@ function openWorkout(id) {
   document.getElementById('modal').classList.add('open');
 }
 
+
 function openFullWorkout() {
   if (!currentWorkout) return;
-  // Option 1: Open raw markdown on GitHub
-  const repoUrl = 'https://github.com/YOUR-USERNAME/YOUR-REPO/blob/main/' + currentWorkout.source;
-  alert('📄 Full workout details are in: ' + currentWorkout.source + '\n\nOnce you push to GitHub, you can view the markdown file here:\n' + repoUrl + '\n\n(Update YOUR-USERNAME and YOUR-REPO in the HTML)');
-  // Uncomment the line below once you set your repo details:
-  // window.open(repoUrl, '_blank');
+  const repoUrl = 'https://github.com/JewelsGemstone/wod-killer/blob/main/' + encodeURIComponent(currentWorkout.source);
+  window.open(repoUrl, '_blank');
 }
 
 function closeModal() {
