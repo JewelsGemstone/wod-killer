@@ -629,7 +629,9 @@ function openWorkout(id) {
 
 function openFullWorkout() {
   if (!currentWorkout) return;
-  const repoUrl = 'https://github.com/JewelsGemstone/wod-killer/blob/main/' + currentWorkout.source;
+  // URL-encode the filename to handle spaces and special characters
+  const encodedSource = encodeURIComponent(currentWorkout.source);
+  const repoUrl = 'https://github.com/JewelsGemstone/wod-killer/blob/main/' + encodedSource;
   window.open(repoUrl, '_blank');
 }
 
