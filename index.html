@@ -323,6 +323,24 @@
   .empty { text-align: center; padding: 4rem; color: var(--text-muted); font-size: 14px; grid-column: 1/-1; }
   .empty i { font-size: 36px; display: block; margin-bottom: 10px; }
 
+  /* ── MODAL ─────────────────────────────────── */
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+  .modal.open { display: flex; }
+  .modal-content { background: var(--card-bg); border-radius: var(--radius); padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+  .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; cursor: pointer; font-size: 24px; color: var(--text-muted); transition: color var(--transition); }
+  .modal-close:hover { color: var(--text-primary); }
+  .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; }
+  .modal-meta { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .modal-pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .modal-section { margin-bottom: 1.5rem; }
+  .modal-label { font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .modal-text { font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+  .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .modal-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .modal-equipment { display: flex; flex-wrap: wrap; gap: 6px; }
+  .modal-eq { font-size: 12px; padding: 4px 10px; border-radius: 8px; background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); display: flex; align-items: center; gap: 4px; }
+  .modal-eq i { font-size: 14px; }
+
   /* ── RESPONSIVE ─────────────────────────────── */
   @media (max-width: 768px) {
     .app { flex-direction: column; }
@@ -479,7 +497,7 @@ const WS = [
   {id:'rec2',cat:'recovery',title:'5-Day Strength + Recovery Plan',desc:'Program evaluation + enhancements: weekly rotation, tempo focus, progressive overload, mobility finishers.',difficulty:'Intermediate',format:'program',equipment:['Barbell','Dumbbell','Kettlebell'],tags:['5-day','program design','weekly plan'],source:'5-Day_Strength_Recovery_Workouts.md'},
 ];
 
-let nav = 'all', fmtF = 'all';
+let nav = 'all', fmtF = 'all', currentWorkout = null;
 
 function filtered() {
   const q = document.getElementById('search').value.toLowerCase();
@@ -575,11 +593,96 @@ function render() {
 
 function openWorkout(id) {
   const w = WS.find(x => x.id === id);
-  if (w) alert('📄 ' + w.title + '\n\nSource: ' + w.source + '\n\n' + w.desc + '\n\nTip: Link this card to the rendered markdown file in your repo!');
+  if (!w) return;
+  
+  currentWorkout = w; // Track for "View Full Workout" button
+  
+  // Title
+  document.getElementById('modal-title').textContent = w.title;
+  
+  // Pills: category, difficulty, format
+  document.getElementById('modal-meta').innerHTML = `
+    <span class="modal-pill pill p-${w.cat}">${PILL_LABELS[w.cat]}</span>
+    <span class="modal-pill diff${w.difficulty === 'Advanced' ? ' adv' : ''}">${w.difficulty}</span>
+    <span class="modal-pill" style="background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border);">${w.format}</span>
+  `;
+  
+  // Description
+  document.getElementById('modal-desc').textContent = w.desc;
+  
+  // Equipment
+  document.getElementById('modal-equipment').innerHTML = w.equipment.map(e => `
+    <div class="modal-eq">
+      <i class="ti ${eqIcon(e)}" aria-hidden="true"></i>${e}
+    </div>
+  `).join('');
+  
+  // Tags
+  document.getElementById('modal-tags').innerHTML = w.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  
+  // Source
+  document.getElementById('modal-source').textContent = w.source;
+  
+  // Show modal
+  document.getElementById('modal').classList.add('open');
 }
+
+function openFullWorkout() {
+  if (!currentWorkout) return;
+  // Option 1: Open raw markdown on GitHub
+  const repoUrl = 'https://github.com/YOUR-USERNAME/YOUR-REPO/blob/main/' + currentWorkout.source;
+  alert('📄 Full workout details are in: ' + currentWorkout.source + '\n\nOnce you push to GitHub, you can view the markdown file here:\n' + repoUrl + '\n\n(Update YOUR-USERNAME and YOUR-REPO in the HTML)');
+  // Uncomment the line below once you set your repo details:
+  // window.open(repoUrl, '_blank');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
 
 renderFmtPills();
 render();
 </script>
+
+<!-- MODAL POPUP -->
+<div class="modal" id="modal" onclick="if(event.target.id==='modal') closeModal()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <div class="modal-meta" id="modal-meta"></div>
+    
+    <div class="modal-section">
+      <div class="modal-label">Description</div>
+      <div class="modal-text" id="modal-desc"></div>
+    </div>
+    
+    <div class="modal-section">
+      <div class="modal-label">Equipment</div>
+      <div class="modal-equipment" id="modal-equipment"></div>
+    </div>
+    
+    <div class="modal-section">
+      <div class="modal-label">Tags</div>
+      <div class="modal-tags" id="modal-tags"></div>
+    </div>
+    
+    <div class="modal-section">
+      <div class="modal-label">Source File</div>
+      <div class="modal-text" id="modal-source"></div>
+    </div>
+    
+    <div class="modal-section" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1.5px solid var(--border);">
+      <button onclick="openFullWorkout()" style="width: 100%; padding: 10px 16px; background: var(--purple-bright); color: white; border: none; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; font-family: var(--font-body); font-size: 14px; transition: background var(--transition);" onmouseover="this.style.background='var(--purple-mid)'" onmouseout="this.style.background='var(--purple-bright)'">
+        📄 View Full Workout Details
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
