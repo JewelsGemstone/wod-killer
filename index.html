@@ -677,17 +677,26 @@ function openFullWorkout() {
   
   contentArea.innerHTML = '<div class="markdown-loading">Loading workout details...</div>';
   
+  console.log('Fetching:', rawGitHubUrl);
+  
   fetch(rawGitHubUrl)
     .then(res => {
-      if (!res.ok) throw new Error('File not found');
+      console.log('Response status:', res.status);
+      if (!res.ok) throw new Error('File not found (HTTP ' + res.status + ')');
       return res.text();
     })
     .then(markdown => {
+      console.log('Markdown loaded, length:', markdown.length);
+      if (!markdown || markdown.length === 0) {
+        throw new Error('File is empty');
+      }
       // Render markdown to HTML using marked.js
-      contentArea.innerHTML = marked.parse(markdown);
+      const html = marked.parse(markdown);
+      contentArea.innerHTML = html;
     })
     .catch(err => {
-      contentArea.innerHTML = '<div class="markdown-error">❌ Could not load workout details. <br> <small>' + err.message + '</small></div>';
+      console.error('Error:', err);
+      contentArea.innerHTML = '<div class="markdown-error">❌ Could not load workout details.<br><small>' + err.message + '</small><br><br>Check that the file exists in your repo and GitHub Pages is enabled.</div>';
     });
 }
 
