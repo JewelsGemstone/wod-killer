@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Julie's Workout Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css" />
+<style>
+  :root {
+    --purple-deep: #1E1852;
+    --purple-mid: #2D2480;
+    --purple-bright: #5547C8;
+    --purple-light: #EEEDFE;
+    --purple-muted: #AFA9EC;
+    --coral: #E8503A;
+    --coral-light: #FAECE7;
+    --teal: #1A9E75;
+    --teal-light: #E1F5EE;
+    --amber: #C97B12;
+    --amber-light: #FAEEDA;
+    --blue: #2C72C7;
+    --blue-light: #E6F1FB;
+    --pink: #C44070;
+    --pink-light: #FBEAF0;
+    --green: #5A8F1A;
+    --green-light: #EAF3DE;
+    --bg: #F4F3FB;
+    --card-bg: #FFFFFF;
+    --border: #E2DFFA;
+    --text-primary: #16133A;
+    --text-secondary: #4E4980;
+    --text-muted: #8E89BE;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --sidebar-w: 220px;
+    --transition: 0.15s ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── LAYOUT ─────────────────────────────────── */
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ─────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--purple-deep);
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 0.875rem;
+    gap: 2px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0.25rem 0.625rem 1.1rem;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .logo i { font-size: 20px; color: var(--purple-muted); }
+
+  .slabel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.7rem 0.625rem 0.25rem;
+  }
+
+  .nbtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-body);
+    color: rgba(255,255,255,0.75);
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    transition: background var(--transition), color var(--transition);
+  }
+  .nbtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nbtn.active { background: var(--purple-bright); color: #fff; font-weight: 500; }
+  .nbtn i { font-size: 15px; flex-shrink: 0; color: rgba(255,255,255,0.45); transition: color var(--transition); }
+  .nbtn:hover i, .nbtn.active i { color: rgba(255,255,255,0.9); }
+
+  .nbadge {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 1px 7px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+  }
+  .nbtn.active .nbadge { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .ndivider { height: 0.5px; background: rgba(255,255,255,0.1); margin: 0.6rem 0; }
+  .nlink { color: rgba(255,255,255,0.55) !important; }
+  .nlink:hover { color: #fff !important; }
+
+  /* ── MAIN ─────────────────────────────────── */
+  .main {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .page-sub { font-size: 13px; color: var(--text-muted); }
+
+  /* ── SEARCH + FORMAT PILLS ─────────────────── */
+  .controls { display: flex; flex-direction: column; gap: 8px; }
+  .topbar { display: flex; gap: 8px; }
+  .sw { flex: 1; position: relative; }
+  .sw i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-muted); pointer-events: none; }
+  .sw input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    font-size: 13px;
+    font-family: var(--font-body);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .sw input:focus { border-color: var(--purple-bright); }
+  .sw input::placeholder { color: var(--text-muted); }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fpill {
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    padding: 4px 11px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 400;
+    white-space: nowrap;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .fpill:hover { border-color: var(--purple-muted); color: var(--purple-mid); }
+  .fpill.active-all     { background: var(--purple-deep); color: #fff; border-color: var(--purple-deep); }
+  .fpill.active-emom    { background: var(--purple-light); color: var(--purple-mid); border-color: var(--purple-muted); }
+  .fpill.active-amrap   { background: var(--coral-light); color: var(--coral); border-color: var(--coral); }
+  .fpill.active-chipper { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+  .fpill.active-ladder  { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+  .fpill.active-rounds  { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+  .fpill.active-program { background: var(--pink-light); color: var(--pink); border-color: var(--pink); }
+  .fpill.active-sets    { background: var(--green-light); color: var(--green); border-color: var(--green); }
+  .fpill.active-superset { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+  .fpill.active-phased  { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+
+  /* ── STATS ─────────────────────────────────── */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+  .sc {
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    border: 1.5px solid transparent;
+  }
+  .sc1 { background: var(--purple-light); border-color: #D5D0FA; }
+  .sc2 { background: var(--coral-light); border-color: #F5C9BE; }
+  .sc3 { background: var(--teal-light); border-color: #B0E6D3; }
+  .sc4 { background: var(--amber-light); border-color: #F0D5A0; }
+  .scl { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; margin-bottom: 3px; }
+  .sc1 .scl { color: var(--purple-bright); }
+  .sc2 .scl { color: var(--coral); }
+  .sc3 .scl { color: var(--teal); }
+  .sc4 .scl { color: var(--amber); }
+  .scv { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .sc1 .scv { color: var(--purple-deep); }
+  .sc2 .scv { color: #8B2A1A; }
+  .sc3 .scv { color: #0A5C42; }
+  .sc4 .scv { color: #7A4A08; }
+  .scs { font-size: 11px; margin-top: 2px; }
+  .sc1 .scs { color: var(--purple-bright); }
+  .sc2 .scs { color: var(--coral); }
+  .sc3 .scs { color: var(--teal); }
+  .sc4 .scs { color: var(--amber); }
+
+  /* ── GRID HEADER ─────────────────────────────── */
+  .gh { display: flex; align-items: center; justify-content: space-between; }
+  .gt { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--text-secondary); }
+  .gc { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+  /* ── CARDS ─────────────────────────────────── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+
+  .wc {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    border: 1.5px solid var(--border);
+    border-top: 3px solid transparent;
+    transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  }
+  .wc:hover {
+    border-color: var(--purple-muted);
+    border-top-color: inherit;
+    box-shadow: 0 4px 16px rgba(85,71,200,0.1);
+    transform: translateY(-1px);
+  }
+  .cat-kb-hybrid   { border-top-color: var(--purple-bright) !important; }
+  .cat-kb-wod      { border-top-color: var(--teal) !important; }
+  .cat-kb-hard     { border-top-color: #E24B4A !important; }
+  .cat-kb-strength { border-top-color: var(--amber) !important; }
+  .cat-running     { border-top-color: var(--blue) !important; }
+  .cat-lifting     { border-top-color: var(--pink) !important; }
+  .cat-legs        { border-top-color: var(--green) !important; }
+  .cat-crossfit    { border-top-color: var(--coral) !important; }
+  .cat-recovery    { border-top-color: var(--teal) !important; }
+
+  .wctop { display: flex; align-items: flex-start; justify-content: space-between; gap: 5px; }
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .p-kb-hybrid   { background: var(--purple-light); color: var(--purple-mid); }
+  .p-kb-wod      { background: var(--teal-light); color: #085041; }
+  .p-kb-hard     { background: #FCEBEB; color: #791F1F; }
+  .p-kb-strength { background: var(--amber-light); color: #633806; }
+  .p-running     { background: var(--blue-light); color: #0C447C; }
+  .p-lifting     { background: var(--pink-light); color: #72243E; }
+  .p-legs        { background: var(--green-light); color: #27500A; }
+  .p-crossfit    { background: var(--coral-light); color: #712B13; }
+  .p-recovery    { background: var(--teal-light); color: #085041; }
+
+  .diff {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .diff.adv { background: #FCEBEB; color: #791F1F; border-color: #F09595; }
+
+  .wctitle { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+  .wcdesc  { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+
+  .wcmeta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .met { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-muted); }
+  .met i { font-size: 13px; }
+
+  .wtags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .empty { text-align: center; padding: 4rem; color: var(--text-muted); font-size: 14px; grid-column: 1/-1; }
+  .empty i { font-size: 36px; display: block; margin-bottom: 10px; }
+
+  /* ── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 768px) {
+    .app { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 0.75rem; gap: 4px; }
+    .slabel { display: none; }
+    .logo { padding-bottom: 0.5rem; width: 100%; }
+    .ndivider { display: none; }
+    .nbadge { display: none; }
+    .nbtn { width: auto; font-size: 12px; padding: 5px 8px; }
+    .stats { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Workout categories">
+  <div class="logo"><i class="ti ti-flame" aria-hidden="true"></i> Julie's Workouts</div>
+
+  <span class="slabel">All</span>
+  <button class="nbtn active" id="nav-all" onclick="setNav('all')">
+    <i class="ti ti-layout-grid" aria-hidden="true"></i> Everything
+    <span class="nbadge" id="b-all"></span>
+  </button>
+
+  <span class="slabel">Kettlebell</span>
+  <button class="nbtn" id="nav-kb-hybrid" onclick="setNav('kb-hybrid')">
+    <i class="ti ti-bike" aria-hidden="true"></i> KB + Cardio
+    <span class="nbadge" id="b-kb-hybrid"></span>
+  </button>
+  <button class="nbtn" id="nav-kb-wod" onclick="setNav('kb-wod')">
+    <i class="ti ti-calendar-week" aria-hidden="true"></i> 5-Day WODs
+    <span class="nbadge" id="b-kb-wod"></span>
+  </button>
+  <button class="nbtn" id="nav-kb-hard" onclick="setNav('kb-hard')">
+    <i class="ti ti-skull" aria-hidden="true"></i> Hard Mode
+    <span class="nbadge" id="b-kb-hard"></span>
+  </button>
+  <button class="nbtn" id="nav-kb-strength" onclick="setNav('kb-strength')">
+    <i class="ti ti-barbell" aria-hidden="true"></i> KB Strength
+    <span class="nbadge" id="b-kb-strength"></span>
+  </button>
+
+  <span class="slabel">Programs</span>
+  <button class="nbtn" id="nav-running" onclick="setNav('running')">
+    <i class="ti ti-run" aria-hidden="true"></i> 15K Training
+    <span class="nbadge" id="b-running"></span>
+  </button>
+  <button class="nbtn" id="nav-lifting" onclick="setNav('lifting')">
+    <i class="ti ti-barbell" aria-hidden="true"></i> Barbell Lifting
+    <span class="nbadge" id="b-lifting"></span>
+  </button>
+  <button class="nbtn" id="nav-legs" onclick="setNav('legs')">
+    <i class="ti ti-trending-up" aria-hidden="true"></i> Leg Programs
+    <span class="nbadge" id="b-legs"></span>
+  </button>
+  <button class="nbtn" id="nav-crossfit" onclick="setNav('crossfit')">
+    <i class="ti ti-bolt" aria-hidden="true"></i> CrossFit / WODs
+    <span class="nbadge" id="b-crossfit"></span>
+  </button>
+  <button class="nbtn" id="nav-recovery" onclick="setNav('recovery')">
+    <i class="ti ti-heart" aria-hidden="true"></i> Recovery
+    <span class="nbadge" id="b-recovery"></span>
+  </button>
+
+  <div class="ndivider"></div>
+  <span class="slabel">Tools</span>
+  <button class="nbtn nlink" onclick="pickRandom()">
+    <i class="ti ti-dice" aria-hidden="true"></i> Random workout
+  </button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <h1 class="page-title" id="page-title">Everything</h1>
+    <span class="page-sub" id="page-sub"></span>
+  </div>
+
+  <div class="controls">
+    <div class="topbar">
+      <div class="sw">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="text" placeholder="Search workouts, movements, equipment…" id="search" oninput="render()" aria-label="Search workouts" />
+      </div>
+    </div>
+    <div class="pills" id="fmt-pills"></div>
+  </div>
+
+  <div class="stats" id="stats" aria-label="Statistics"></div>
+
+  <div class="gh">
+    <span class="gt" id="section-label"></span>
+    <span class="gc" id="result-count"></span>
+  </div>
+
+  <div class="grid" id="grid" role="list"></div>
+</main>
+</div>
+
+<script>
+const CATS = {
+  'all':'Everything','kb-hybrid':'KB + Cardio','kb-wod':'5-Day WODs',
+  'kb-hard':'Hard Mode','kb-strength':'KB Strength + Engine',
+  'running':'15K Training Plan','lifting':'Barbell Lifting',
+  'legs':'Leg Programs','crossfit':'CrossFit / WODs','recovery':'Recovery'
+};
+const PILL_LABELS = {
+  'kb-hybrid':'KB + Cardio','kb-wod':'5-Day WOD','kb-hard':'Hard Mode',
+  'kb-strength':'KB Strength','running':'Running','lifting':'Lifting',
+  'legs':'Legs','crossfit':'CrossFit','recovery':'Recovery'
+};
+const FMT_ICONS = {
+  emom:'ti-clock',amrap:'ti-repeat',chipper:'ti-list-numbers',
+  ladder:'ti-stairs',rounds:'ti-rotate-clockwise',program:'ti-calendar-stats',
+  sets:'ti-table',superset:'ti-arrows-exchange',phased:'ti-timeline'
+};
+
+const WS = [
+  {id:'se1',cat:'kb-strength',title:'KB Strength + Engine Builder',desc:'Progressive KB squat + swing ladder broken by rowing and Echo Bike intervals.',difficulty:'Advanced',format:'phased',equipment:['Kettlebell','Rower','Echo Bike'],tags:['lower body','posterior chain','aerobic'],source:'kb_strength_and_endurance.md'},
+  {id:'w1',cat:'kb-wod',title:'Day 1 — Posterior Chain Power',desc:'Deadlift day: swings, single-leg DL, lunges, good mornings, farmer\'s carry.',difficulty:'Intermediate',format:'sets',equipment:['Kettlebell'],tags:['posterior chain','glutes','hamstrings'],source:'kb_wods.md'},
+  {id:'w2',cat:'kb-wod',title:'Day 2 — Upper Body Strength',desc:'Bench day supersets: clean & press, row, floor press, upright row, snatch finisher.',difficulty:'Intermediate',format:'superset',equipment:['Kettlebell'],tags:['upper body','push','pull'],source:'kb_wods.md'},
+  {id:'w3',cat:'kb-wod',title:'Day 3 — Mobility & Core',desc:'Active recovery: halos, windmills, Turkish get-ups, side plank rows.',difficulty:'Intermediate',format:'sets',equipment:['Kettlebell'],tags:['mobility','core','recovery'],source:'kb_wods.md'},
+  {id:'w4',cat:'kb-wod',title:'Day 4 — Lower Body + Conditioning',desc:'20-min EMOM alternating goblet squats and KB swings + reverse lunge to press.',difficulty:'Intermediate',format:'emom',equipment:['Kettlebell'],tags:['lower body','EMOM','quads'],source:'kb_wods.md'},
+  {id:'w5',cat:'kb-wod',title:'Day 5 — Full-Body Athletic Burn',desc:'3 rounds for time: snatch, push press, figure-8, Russian twists, swings, farmer\'s carry sprint.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell'],tags:['full body','athletic','power'],source:'kb_wods.md'},
+  {id:'h1',cat:'kb-hard',title:'Engine & Iron — Heavy Edition',desc:'6 rounds: Echo Bike cals then unbroken KB complex. 45s rest max.',difficulty:'Advanced',format:'rounds',equipment:['Kettlebell','Echo Bike'],tags:['grip','heavy','unbroken'],source:'kb_hard_core.md'},
+  {id:'h2',cat:'kb-hard',title:'Row & Flow — Grind Version',desc:'5 rounds: 750m uncomfortable row + KB flow (snatches, windmills, goblet squats).',difficulty:'Advanced',format:'rounds',equipment:['Kettlebell','Rower'],tags:['rowing','flow','endurance'],source:'kb_hard_core.md'},
+  {id:'h3',cat:'kb-hard',title:'Descent Into Darkness',desc:'Echo Bike descending cals (30→10) while KB reps ascend (10→30). Heavy farmer\'s carry finisher.',difficulty:'Advanced',format:'ladder',equipment:['Kettlebell','Echo Bike'],tags:['ladder','grip','bike'],source:'kb_hard_core.md'},
+  {id:'h4',cat:'kb-hard',title:'Row + KB Chipper — Elite',desc:'For time (40 min cap): 2000m row, 100 swings, 80 clean & press, 60 squats, 40 snatches.',difficulty:'Advanced',format:'chipper',equipment:['Kettlebell','Rower'],tags:['chipper','rowing','heavy'],source:'kb_hard_core.md'},
+  {id:'h5',cat:'kb-hard',title:'The Punisher — No-Rest EMOM',desc:'30-min EMOM: Echo Bike, heavy swings, clean + push press, goblet squats, rest × 6.',difficulty:'Advanced',format:'emom',equipment:['Kettlebell','Echo Bike'],tags:['EMOM','no rest','heavy'],source:'kb_hard_core.md'},
+  {id:'h6',cat:'kb-hard',title:'Skill Under Suffocation',desc:'5 rounds: 500m above-threshold row + Turkish get-ups, halos, front rack carry.',difficulty:'Advanced',format:'rounds',equipment:['Kettlebell','Rower'],tags:['skill','TGU','rowing'],source:'kb_hard_core.md'},
+  {id:'h7',cat:'kb-hard',title:'Bike → Bell → Soul Leave Body',desc:'4 rounds no rest: 40s all-out bike, 30 swings, 20 push press, 45s front rack hold, 60s plank.',difficulty:'Advanced',format:'rounds',equipment:['Kettlebell','Echo Bike'],tags:['no rest','bike','mental toughness'],source:'kb_hard_core.md'},
+  {id:'p1',cat:'kb-hybrid',title:'Engine & Iron — Intervals',desc:'5 rounds: Echo Bike cals + unbroken KB complex. Switch arms each round.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell','Echo Bike'],tags:['intervals','bike','unbroken'],source:'kb_plus_cardio.md'},
+  {id:'p2',cat:'kb-hybrid',title:'Row & Flow — Aerobic + Skill',desc:'4 quality rounds: 500m row + KB flow (snatches, windmills, goblet squats).',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell','Rower'],tags:['aerobic','skill','rowing'],source:'kb_plus_cardio.md'},
+  {id:'p3',cat:'kb-hybrid',title:'Descent Into Madness — Ladder',desc:'Descending bike cals (15→5) with ascending KB reps (5→15). 100m farmer\'s carry finisher.',difficulty:'Intermediate',format:'ladder',equipment:['Kettlebell','Echo Bike'],tags:['ladder','grip','bike'],source:'kb_plus_cardio.md'},
+  {id:'p4',cat:'kb-hybrid',title:'KB + Rower Chipper',desc:'For time: 1000m → 50 swings → 750m → 40 clean & press → 500m → 30 squats → 250m → 20 snatches.',difficulty:'Intermediate',format:'chipper',equipment:['Kettlebell','Rower'],tags:['chipper','rowing','for time'],source:'kb_plus_cardio.md'},
+  {id:'p5',cat:'kb-hybrid',title:'The Punisher — EMOM',desc:'20-min EMOM × 5: Echo Bike, KB swings, clean + press, rest. Stay consistent.',difficulty:'Intermediate',format:'emom',equipment:['Kettlebell','Echo Bike'],tags:['EMOM','bike','conditioning'],source:'kb_plus_cardio.md'},
+  {id:'p6',cat:'kb-hybrid',title:'Skill Under Fatigue',desc:'4 rounds: 400m moderate row + Turkish get-ups, halos, suitcase carry.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell','Rower'],tags:['skill','rowing','low impact'],source:'kb_plus_cardio.md'},
+  {id:'p7',cat:'kb-hybrid',title:'Bike → Bell Death — Finisher',desc:'3 rounds no rest: 30s all-out bike, 20 swings, 10 push press, 30s front rack hold.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell','Echo Bike'],tags:['finisher','bike','short'],source:'kb_plus_cardio.md'},
+  {id:'r1',cat:'running',title:'15K Training Plan — 20 Weeks',desc:'20-week plan building from 3-mile runs to race day July 11. Phases: habit, endurance, race-specific, taper.',difficulty:'Intermediate',format:'program',equipment:['Running shoes'],tags:['15K','endurance','taper','phases'],source:'15k_training_plan.md'},
+  {id:'l1',cat:'lifting',title:'6-Week Back Squat Progression',desc:'Intensity-driven 6-week back squat program: 4×5 at 75% up to 6×2 at 88–92%, then deload.',difficulty:'Intermediate',format:'program',equipment:['Barbell','Rack'],tags:['back squat','strength','progression'],source:'six_week_back_squat.md'},
+  {id:'l2',cat:'lifting',title:'Back Squat + Echo Bike Metcon',desc:'Heavy back squat (5×3 or 4×5) followed by a 12–15 min Echo Bike + KB EMOM.',difficulty:'Intermediate',format:'emom',equipment:['Barbell','Echo Bike','Kettlebell'],tags:['back squat','metcon','posterior chain'],source:'back_squat_and_metcon.md'},
+  {id:'l3',cat:'lifting',title:'Heavy Lift + Hard WOD',desc:'Choose: heavy deadlift + 18-min AMRAP, or heavy bench + 5 rounds for time.',difficulty:'Advanced',format:'amrap',equipment:['Barbell','Kettlebell','Echo Bike'],tags:['deadlift','bench','AMRAP'],source:'lifts_and_wod.md'},
+  {id:'l4',cat:'lifting',title:'Squat Therapy — Glute Blueprint',desc:'8-week glute activation + strength plan with technique cues, accessory lifts, and progression.',difficulty:'Intermediate',format:'program',equipment:['Barbell','Dumbbell','Kettlebell'],tags:['glutes','squat','accessory'],source:'squat_therapy.md'},
+  {id:'lg1',cat:'legs',title:'Leg Smasher — The Descent',desc:'~35-min Echo Bike + KB chipper: 40 cal buy-in, 60 goblet squats, 50 lunges, 40 swings, 20 BSS, 40 cal buy-out.',difficulty:'Advanced',format:'chipper',equipment:['Kettlebell','Echo Bike'],tags:['quads','glutes','high volume'],source:'leg_smash.md'},
+  {id:'lg2',cat:'legs',title:'Barbell Leg Smasher — The Grinder',desc:'~40-min: 5×10 back squats, barbell complex (RDL/FS/BS), Bulgarian split squats, 10-min AMRAP finisher.',difficulty:'Advanced',format:'amrap',equipment:['Barbell','Rack'],tags:['quads','hamstrings','volume'],source:'barbell_leg_smash.md'},
+  {id:'lg3',cat:'legs',title:'6-Week Leg Strength Program',desc:'3×/week: Day 1 heavy squat, Day 2 posterior chain, Day 3 unilateral + volume. Progressive load.',difficulty:'Intermediate',format:'program',equipment:['Barbell','Rack','Kettlebell'],tags:['squat','deadlift','unilateral'],source:'6_weeks_legs.md'},
+  {id:'cf1',cat:'crossfit',title:'12 Days of Christmas WOD',desc:'Cumulative rep scheme like the song across 12 dumbbell movements. Goal time 25–40 min.',difficulty:'Advanced',format:'rounds',equipment:['Dumbbell'],tags:['CrossFit','benchmark','for time'],source:'12_Days_of_Christmas.md'},
+  {id:'cf2',cat:'crossfit',title:'E5MOM — 25 Min Conditioning',desc:'Every 5 min × 5: 10 burpees, 10 KB squats, 10 EZ bar curls, 10 burpees. 100 total burpees.',difficulty:'Intermediate',format:'emom',equipment:['Kettlebell','EZ Bar'],tags:['E5MOM','burpees','conditioning'],source:'E5MOM.md'},
+  {id:'cf3',cat:'crossfit',title:'10-Minute KB Gauntlet',desc:'Hold one KB for 10 minutes straight. Switch movement every minute. Do NOT put it down.',difficulty:'Intermediate',format:'amrap',equipment:['Kettlebell'],tags:['grip','no put-down','mental toughness'],source:'10_Min_KB.md'},
+  {id:'cf4',cat:'crossfit',title:'ChatGPT KB Starter Workout',desc:'5 foundational KB movements: swing, goblet squat, deadlift, push press, Russian twist. 3–5 rounds.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell'],tags:['beginner','full body','KB basics'],source:'ChatGPT_Workout_Lists.md'},
+  {id:'rec1',cat:'recovery',title:'Recovery Full Body Session',desc:'40–55 min low-load session: controlled circuit, joint health flow, optional easy walk/row.',difficulty:'Intermediate',format:'rounds',equipment:['Kettlebell','Dumbbell','Rower'],tags:['recovery','full body','low load'],source:'full_body.md'},
+  {id:'rec2',cat:'recovery',title:'5-Day Strength + Recovery Plan',desc:'Program evaluation + enhancements: weekly rotation, tempo focus, progressive overload, mobility finishers.',difficulty:'Intermediate',format:'program',equipment:['Barbell','Dumbbell','Kettlebell'],tags:['5-day','program design','weekly plan'],source:'5-Day_Strength_Recovery_Workouts.md'},
+];
+
+let nav = 'all', fmtF = 'all';
+
+function filtered() {
+  const q = document.getElementById('search').value.toLowerCase();
+  return WS.filter(w => {
+    if (nav !== 'all' && w.cat !== nav) return false;
+    if (fmtF !== 'all' && w.format !== fmtF) return false;
+    if (q) {
+      const h = [w.title, w.desc, ...w.tags, ...w.equipment].join(' ').toLowerCase();
+      if (!h.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function setNav(v) {
+  nav = v;
+  Object.keys(CATS).forEach(k => {
+    const e = document.getElementById('nav-' + k);
+    if (e) e.className = 'nbtn' + (k === v ? ' active' : '');
+  });
+  fmtF = 'all';
+  renderFmtPills();
+  render();
+}
+
+function setFmt(v) { fmtF = v; renderFmtPills(); render(); }
+
+function renderFmtPills() {
+  const ws = nav === 'all' ? WS : WS.filter(w => w.cat === nav);
+  const present = [...new Set(ws.map(w => w.format))].sort();
+  const c = document.getElementById('fmt-pills');
+  c.innerHTML = `<button class="fpill${fmtF === 'all' ? ' active-all' : ''}" onclick="setFmt('all')">All formats</button>` +
+    present.map(f => `<button class="fpill${fmtF === f ? ' active-' + f : ''}" onclick="setFmt('${f}')"><i class="ti ${FMT_ICONS[f] || 'ti-layout'}" style="font-size:11px" aria-hidden="true"></i> ${f}</button>`).join('');
+}
+
+function eqIcon(e) {
+  if (e.includes('Bike')) return 'ti-bike';
+  if (e.includes('Row') || e.includes('Rower')) return 'ti-rowing';
+  if (e.includes('Run')) return 'ti-run';
+  if (e.includes('Barbell') || e.includes('Rack')) return 'ti-barbell';
+  return 'ti-weight';
+}
+
+function pickRandom() {
+  const pool = filtered().length > 0 ? filtered() : WS;
+  const w = pool[Math.floor(Math.random() * pool.length)];
+  document.getElementById('search').value = w.title;
+  render();
+  setTimeout(() => {
+    document.getElementById('search').value = '';
+    alert('🎲 Today\'s workout: ' + w.title + '\n\n' + w.desc + '\n\nSource file: ' + w.source);
+    render();
+  }, 300);
+}
+
+function render() {
+  const ws = filtered();
+  Object.keys(CATS).forEach(k => {
+    const e = document.getElementById('b-' + k);
+    if (e) e.textContent = k === 'all' ? WS.length : WS.filter(w => w.cat === k).length;
+  });
+
+  const adv = ws.filter(w => w.difficulty === 'Advanced').length;
+  const progs = ws.filter(w => w.format === 'program').length;
+  const emoms = ws.filter(w => w.format === 'emom').length;
+  const cats = new Set(ws.map(w => w.cat)).size;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="sc sc1"><div class="scl">Workouts</div><div class="scv">${ws.length}</div><div class="scs">in view</div></div>
+    <div class="sc sc2"><div class="scl">Advanced</div><div class="scv">${adv}</div><div class="scs">${ws.length ? Math.round(adv / ws.length * 100) : 0}% of total</div></div>
+    <div class="sc sc3"><div class="scl">Programs</div><div class="scv">${progs}</div><div class="scs">multi-week plans</div></div>
+    <div class="sc sc4"><div class="scl">EMOMs</div><div class="scv">${emoms}</div><div class="scs">across ${cats} categor${cats === 1 ? 'y' : 'ies'}</div></div>`;
+
+  const label = CATS[nav] || 'Everything';
+  document.getElementById('page-title').textContent = label;
+  document.getElementById('section-label').textContent = label;
+  document.getElementById('result-count').textContent = ws.length + ' workout' + (ws.length !== 1 ? 's' : '');
+  document.getElementById('page-sub').textContent = ws.length + ' workout' + (ws.length !== 1 ? 's' : '');
+
+  document.getElementById('grid').innerHTML = ws.length ? ws.map(w => `
+    <article class="wc cat-${w.cat}" role="listitem" tabindex="0" onclick="openWorkout('${w.id}')" onkeydown="if(event.key==='Enter')openWorkout('${w.id}')">
+      <div class="wctop">
+        <span class="pill p-${w.cat}">${PILL_LABELS[w.cat] || w.cat}</span>
+        <span class="diff${w.difficulty === 'Advanced' ? ' adv' : ''}">${w.difficulty}</span>
+      </div>
+      <div class="wctitle">${w.title}</div>
+      <div class="wcdesc">${w.desc}</div>
+      <div class="wcmeta">${[...new Set(w.equipment)].slice(0, 2).map(e => `<span class="met"><i class="ti ${eqIcon(e)}" aria-hidden="true"></i>${e}</span>`).join('')}</div>
+      <div class="wtags">${w.tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    </article>`).join('') :
+    `<div class="empty"><i class="ti ti-mood-empty"></i>No workouts match — try a different filter</div>`;
+}
+
+function openWorkout(id) {
+  const w = WS.find(x => x.id === id);
+  if (w) alert('📄 ' + w.title + '\n\nSource: ' + w.source + '\n\n' + w.desc + '\n\nTip: Link this card to the rendered markdown file in your repo!');
+}
+
+renderFmtPills();
+render();
+</script>
+</body>
+</html>
