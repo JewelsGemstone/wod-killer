@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   :root {
     --purple-deep: #1E1852;
@@ -341,6 +342,29 @@
   .modal-eq { font-size: 12px; padding: 4px 10px; border-radius: 8px; background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); display: flex; align-items: center; gap: 4px; }
   .modal-eq i { font-size: 14px; }
 
+  /* ── MARKDOWN CONTENT ─────────────────────────── */
+  .modal-tabs { display: flex; gap: 8px; margin: 1.5rem 0 1rem; border-bottom: 1.5px solid var(--border); }
+  .modal-tab { padding: 8px 12px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; transition: color var(--transition), border-color var(--transition); }
+  .modal-tab.active { color: var(--text-primary); border-bottom-color: var(--purple-bright); }
+  .modal-content-area { display: none; max-height: 50vh; overflow-y: auto; padding: 1rem 0; }
+  .modal-content-area.active { display: block; }
+  .markdown-content { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+  .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-family: var(--font-display); font-weight: 700; margin: 1rem 0 0.5rem; color: var(--text-primary); }
+  .markdown-content h1 { font-size: 18px; }
+  .markdown-content h2 { font-size: 15px; }
+  .markdown-content h3 { font-size: 13px; }
+  .markdown-content p { margin-bottom: 0.75rem; }
+  .markdown-content ul, .markdown-content ol { margin-left: 1.5rem; margin-bottom: 0.75rem; }
+  .markdown-content li { margin-bottom: 0.5rem; }
+  .markdown-content code { background: var(--bg); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 12px; color: #E24B4A; }
+  .markdown-content pre { background: var(--bg); padding: 1rem; border-radius: var(--radius-sm); overflow-x: auto; margin: 0.75rem 0; }
+  .markdown-content pre code { background: none; padding: 0; color: var(--text-secondary); }
+  .markdown-content table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+  .markdown-content th, .markdown-content td { border: 0.5px solid var(--border); padding: 0.5rem; text-align: left; }
+  .markdown-content th { background: var(--bg); font-weight: 600; }
+  .markdown-loading { text-align: center; padding: 2rem; color: var(--text-muted); }
+  .markdown-error { background: #FCEBEB; color: #791F1F; padding: 1rem; border-radius: var(--radius-sm); }
+
   /* ── RESPONSIVE ─────────────────────────────── */
   @media (max-width: 768px) {
     .app { flex-direction: column; }
@@ -623,15 +647,48 @@ function openWorkout(id) {
   // Source
   document.getElementById('modal-source').textContent = w.source;
   
+  // Show 'Full Workout' tab button
+  document.getElementById('full-tab').style.display = 'block';
+  
   // Show modal
   document.getElementById('modal').classList.add('open');
 }
 
+function switchTab(tab) {
+  // Update active tab button
+  document.querySelectorAll('.modal-tab').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Update active content area
+  document.querySelectorAll('.modal-content-area').forEach(el => el.classList.remove('active'));
+  document.getElementById(tab + '-tab').classList.add('active');
+  
+  // Load full workout content if switching to full tab
+  if (tab === 'full' && !document.getElementById('markdown-content').textContent) {
+    openFullWorkout();
+  }
+}
 
 function openFullWorkout() {
   if (!currentWorkout) return;
-  const repoUrl = 'https://github.com/JewelsGemstone/wod-killer/blob/main/' + encodeURIComponent(currentWorkout.source);
-  window.open(repoUrl, '_blank');
+  
+  const rawGitHubUrl = 'https://raw.githubusercontent.com/JewelsGemstone/wod-killer/main/' + encodeURIComponent(currentWorkout.source);
+  const contentArea = document.getElementById('markdown-content');
+  
+  contentArea.innerHTML = '<div class="markdown-loading">Loading workout details...</div>';
+  
+  fetch(rawGitHubUrl)
+    .then(res => {
+      if (!res.ok) throw new Error('File not found');
+      return res.text();
+    })
+    .then(markdown => {
+      // Render markdown to HTML using marked.js
+      contentArea.innerHTML = marked.parse(markdown);
+    })
+    .catch(err => {
+      contentArea.innerHTML = '<div class="markdown-error">❌ Could not load workout details. <br> <small>' + err.message + '</small></div>';
+    });
 }
 
 function closeModal() {
@@ -654,30 +711,38 @@ render();
     <h2 class="modal-title" id="modal-title"></h2>
     <div class="modal-meta" id="modal-meta"></div>
     
-    <div class="modal-section">
-      <div class="modal-label">Description</div>
-      <div class="modal-text" id="modal-desc"></div>
+    <!-- TABS -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('summary')">Summary</button>
+      <button class="modal-tab" id="full-tab" onclick="switchTab('full')" style="display: none;">Full Workout</button>
     </div>
-    
-    <div class="modal-section">
-      <div class="modal-label">Equipment</div>
-      <div class="modal-equipment" id="modal-equipment"></div>
+
+    <!-- SUMMARY TAB -->
+    <div id="summary-tab" class="modal-content-area active">
+      <div class="modal-section">
+        <div class="modal-label">Description</div>
+        <div class="modal-text" id="modal-desc"></div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-label">Equipment</div>
+        <div class="modal-equipment" id="modal-equipment"></div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-label">Tags</div>
+        <div class="modal-tags" id="modal-tags"></div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-label">Source File</div>
+        <div class="modal-text" id="modal-source"></div>
+      </div>
     </div>
-    
-    <div class="modal-section">
-      <div class="modal-label">Tags</div>
-      <div class="modal-tags" id="modal-tags"></div>
-    </div>
-    
-    <div class="modal-section">
-      <div class="modal-label">Source File</div>
-      <div class="modal-text" id="modal-source"></div>
-    </div>
-    
-    <div class="modal-section" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1.5px solid var(--border);">
-      <button onclick="openFullWorkout()" style="width: 100%; padding: 10px 16px; background: var(--purple-bright); color: white; border: none; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; font-family: var(--font-body); font-size: 14px; transition: background var(--transition);" onmouseover="this.style.background='var(--purple-mid)'" onmouseout="this.style.background='var(--purple-bright)'">
-        📄 View Full Workout Details
-      </button>
+
+    <!-- FULL WORKOUT TAB -->
+    <div id="full-tab-content" class="modal-content-area">
+      <div id="markdown-content" class="markdown-content"></div>
     </div>
   </div>
 </div>
